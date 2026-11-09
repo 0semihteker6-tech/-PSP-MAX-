@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080808"><meta name="description" content="PSP MAX oyun koleksiyonu">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>PSP MAX</title>
+<style>
+:root{--red:#ef2341;--bg:#080808;--panel:#151515;--line:#303030;--muted:#aaa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f6f6f6;font-family:system-ui,Arial,sans-serif}
+header{height:64px;position:sticky;top:0;z-index:4;background:#090909ed;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.logo{font-size:23px;font-weight:950;letter-spacing:1px}.logo span{color:var(--red)}
+button{border:0;border-radius:11px;padding:11px 15px;background:var(--red);color:white;font-weight:750;cursor:pointer}
+button.secondary{background:#252525;border:1px solid #3b3b3b}button.ghost{background:transparent;border:1px solid #444;color:#ddd}
+main{max-width:1000px;margin:auto;padding:20px 16px 100px}
+.hero{padding:25px;border:1px solid #54202b;border-radius:20px;background:radial-gradient(circle at 90% 10%,#641627,transparent 40%),linear-gradient(125deg,#270b12,#151515 70%)}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#ff9cac;font-weight:800}.hero h1{font-size:clamp(27px,6vw,38px);margin:8px 0}.hero p{color:#c8c0c1;line-height:1.5;max-width:600px}
+.actions,.toolbar,.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 25px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px}.stat b{font-size:22px;display:block}.muted{font-size:12px;color:var(--muted)}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}.sectionhead h2{font-size:19px;margin:0}
+.toolbar{margin-bottom:14px}.toolbar input{flex:1;min-width:150px}.toolbar input,.toolbar select,.field input,.field textarea{background:#191919;color:white;border:1px solid #393939;border-radius:10px;padding:12px}
+.toolbar select{max-width:170px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}
+.game{border:1px solid var(--line);background:var(--panel);border-radius:15px;overflow:hidden;cursor:pointer}
+.cover{height:155px;background:linear-gradient(145deg,#4a1020,#151515 70%);position:relative;display:grid;place-items:center}.cover img{width:100%;height:100%;object-fit:cover}.ph{font-size:42px;font-weight:950;color:#ffffff25}
+.pill{position:absolute;top:9px;left:9px;background:#080808c9;padding:5px 8px;border-radius:7px;font-size:10px;color:#ffc0c9}
+.gameinfo{padding:11px}.gameinfo strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}.gameinfo small{display:block;color:var(--muted);margin-top:5px}
+.empty{grid-column:1/-1;text-align:center;padding:35px 15px;border:1px dashed #444;border-radius:15px;color:#aaa;line-height:1.7}
+.page{display:none}.page.active{display:block}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:13px;color:#bbb}.field input,.field textarea{width:100%}
+.note{font-size:12px;color:#aaa;line-height:1.55}.modal{display:none;position:fixed;inset:0;z-index:8;background:#000c;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}
+.dialog{width:min(520px,100%);max-height:90vh;overflow:auto;background:#151515;border:1px solid #444;border-radius:18px;padding:19px}.close{float:right;background:#292929}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#101010f5;border-top:1px solid var(--line);display:flex;justify-content:center;gap:10px;padding:9px}nav button{background:transparent;color:#aaa}nav button.active{background:#35111a;color:white}
+.toast{display:none;position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:12;background:#292929;border:1px solid #555;padding:11px 15px;border-radius:10px;font-size:13px}
+@media(max-width:430px){.stats{gap:7px}.stat{padding:10px}.stat b{font-size:20px}.toolbar select{flex:1;max-width:none}.hero{padding:20px}}
+</style>
+</head>
+<body>
+<header><div class="logo">PSP <span>MAX</span></div><button class="secondary" onclick="page('settings')">⚙ Ayarlar</button></header>
+<main>
+<section class="hero"><div class="eyebrow">YOUR GAME LIBRARY</div><h1>Oyun koleksiyonun.</h1><p>Kendi oyun dosyalarını ekle, kapaklarını düzenle ve koleksiyonunu tek yerde tut.</p><div class="actions"><button onclick="document.getElementById('files').click()">＋ Oyun ekle</button><button class="secondary" id="installBtn" hidden onclick="installApp()">＋ Telefona yükle</button></div><input id="files" type="file" accept=".iso,.cso" multiple hidden></section>
+<div class="stats"><div class="stat"><b id="all">0</b><span class="muted">Oyun</span></div><div class="stat"><b id="favs">0</b><span class="muted">Favori</span></div><div class="stat"><b id="size">0 MB</b><span class="muted">Toplam boyut</span></div></div>
+<section class="page active" id="library"><div class="sectionhead"><h2>Oyun kütüphanesi</h2><span class="muted" id="shown">0 oyun</span></div><div class="toolbar"><input id="search" placeholder="🔎 Oyunlarda ara..." oninput="render()"><select id="filter" onchange="render()"><option value="all">Tüm oyunlar</option><option value="fav">Favoriler</option></select><select id="sort" onchange="render()"><option value="new">En yeni</option><option value="az">A - Z</option><option value="large">En büyük</option></select></div><div class="grid" id="grid"></div></section>
+<section class="page" id="settings"><div class="sectionhead"><h2>Ayarlar ve yedekleme</h2></div><div class="panel"><div class="field"><label>Vurgu rengi</label><select id="color" onchange="applyColor()"><option value="red">Kırmızı</option><option value="blue">Mavi</option><option value="orange">Turuncu</option></select></div><div class="row"><button onclick="backup()">Yedeği indir</button><button class="secondary" onclick="document.getElementById('restore').click()">Yedeği geri yükle</button><input id="restore" type="file" accept=".json" hidden></div><p class="note"><b>Uygulama durumu:</b> Bu sürüm telefona ana ekrandan eklenebilen web uygulaması paketidir. Oyun dosyalarını listeleyip koleksiyonu düzenler; PSP oyunlarını henüz çalıştırmaz. Oyun dosyaları sunucuya yüklenmez.</p></div></section>
+</main>
+<nav><button id="tabLibrary" class="active" onclick="page('library')">🎮 Kütüphane</button><button id="tabSettings" onclick="page('settings')">⚙ Ayarlar</button></nav>
+<div class="modal" id="modal"><div class="dialog"><button class="close" onclick="closeModal()">✕</button><div id="detail"></div></div></div><div class="toast" id="toast"></div>
+<script>
+const KEY='pspmax_pwa_games';let games=[];try{games=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+function save(){localStorage.setItem(KEY,JSON.stringify(games))}function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function msg(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+function size(n){return n?(n/1048576).toFixed(1)+' MB':'Boyut bilinmiyor'}
+document.getElementById('files').addEventListener('change',e=>{let n=0;[...e.target.files].filter(f=>/\.(iso|cso)$/i.test(f.name)).forEach(f=>{if(!games.some(g=>g.file===f.name)){games.unshift({id:Date.now()+Math.random(),file:f.name,title:f.name.replace(/\.[^.]+$/,''),bytes:f.size,date:Date.now(),fav:false,cover:'',note:''});n++}});save();render();msg(n+' oyun eklendi');e.target.value=''});
+function render(){let q=document.getElementById('search').value.toLowerCase(),f=document.getElementById('filter').value,s=document.getElementById('sort').value;let a=games.filter(g=>g.title.toLowerCase().includes(q)).filter(g=>f==='fav'?g.fav:true);a.sort((x,y)=>s==='az'?x.title.localeCompare(y.title):s==='large'?(y.bytes||0)-(x.bytes||0):y.date-x.date);document.getElementById('grid').innerHTML=a.length?a.map(g=>`<article class="game" onclick="detail('${g.id}')"><div class="cover">${g.cover?`<img src="${g.cover}" alt="">`:'<span class="ph">PSP</span>'}<span class="pill">${g.fav?'★ FAVORİ':'PSP OYUNU'}</span></div><div class="gameinfo"><strong>${esc(g.title)}</strong><small>${size(g.bytes)}</small></div></article>`).join(''):'<div class="empty">Henüz oyun yok.<br>ISO veya CSO dosyanı ekleyerek başlayabilirsin.</div>';document.getElementById('all').textContent=games.length;document.getElementById('favs').textContent=games.filter(g=>g.fav).length;document.getElementById('size').textContent=(games.reduce((n,g)=>n+(g.bytes||0),0)/1048576).toFixed(0)+' MB';document.getElementById('shown').textContent=a.length+' oyun'}
+function detail(id){let g=games.find(x=>String(x.id)===String(id));if(!g)return;document.getElementById('detail').innerHTML=`<h2>${esc(g.title)}</h2><p class="muted">${esc(g.file)} · ${size(g.bytes)}</p><div class="field"><label>Oyun adı</label><input id="titleEdit" value="${esc(g.title)}"></div><div class="field"><label>Kapak resmi</label><input id="coverEdit" type="file" accept="image/*"></div><div class="field"><label>Not</label><textarea id="noteEdit" rows="3">${esc(g.note)}</textarea></div><div class="actions"><button onclick="update('${g.id}')">Kaydet</button><button class="secondary" onclick="fav('${g.id}')">${g.fav?'Favoriden çıkar':'Favoriye ekle'}</button><button class="ghost" onclick="removeGame('${g.id}')">Kaldır</button></div><p class="note">Bu sürüm oyunları çalıştırmaz; yalnızca kütüphaneyi yönetir.</p>`;document.getElementById('modal').classList.add('show')}
+function update(id){let g=games.find(x=>String(x.id)===String(id));g.title=document.getElementById('titleEdit').value.trim()||g.title;g.note=document.getElementById('noteEdit').value;let f=document.getElementById('coverEdit').files[0];if(f){if(f.size>1500000){msg('Kapak görseli 1.5 MB altında olmalı');return}let r=new FileReader();r.onload=()=>{g.cover=r.result;save();render();closeModal()};r.readAsDataURL(f)}else{save();render();closeModal()}}
+function fav(id){let g=games.find(x=>String(x.id)===String(id));g.fav=!g.fav;save();render();closeModal()}function removeGame(id){if(confirm('Oyunu kütüphaneden kaldır?')){games=games.filter(g=>String(g.id)!==String(id));save();render();closeModal()}}
+function closeModal(){document.getElementById('modal').classList.remove('show')}function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');document.getElementById('tabLibrary').classList.toggle('active',p==='library');document.getElementById('tabSettings').classList.toggle('active',p==='settings')}
+function backup(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(games,null,2)],{type:'application/json'}));a.href=u;a.download='psp-max-yedek.json';a.click();URL.revokeObjectURL(u)}
+document.getElementById('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;games=d;save();render();msg('Yedek geri yüklendi')}catch(x){msg('Dosya okunamadı')}};r.readAsText(f)})
+function applyColor(){let c=document.getElementById('color').value;document.documentElement.style.setProperty('--red',c==='blue'?'#3478ff':c==='orange'?'#ff7028':'#ef2341');localStorage.setItem('pspmax_color',c)}document.getElementById('color').value=localStorage.getItem('pspmax_color')||'red';applyColor();render();
+let installPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;document.getElementById('installBtn').hidden=false});
+async function installApp(){if(!installPrompt){msg('Chrome menüsünden Ana ekrana ekle seçeneğini kullan');return}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;document.getElementById('installBtn').hidden=true}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script></body></html>
